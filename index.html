@@ -6,13 +6,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script src="./classes.js"></script>
     <script type="module" src="./firebase.js" defer></script>
+    <script type="module" src="./app.js" defer></script>
+
 </head>
 
 <body>
-<div id="cluster-container"></div>
-<div id="inventory-container"></div>
+    <div id="cluster-container"></div>
+    <div id="inventory-container"></div>
+
+    <button id="openModalBtn" class="fab">
+        <span class="material-symbols-outlined">add</span>
+    </button>
+
+    <button id="openModalBtn-2" class="fab">
+        <span class="material-symbols-outlined">add</span>
+    </button>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2>Nuevo elemento</h2>
+            <form id="itemForm">
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" required />
+
+                <label for="expire">Fecha de expiración:</label>
+                <input type="date" id="expire" name="expire" required />
+
+                <div class="modal-buttons">
+                    <button type="submit">Guardar</button>
+                    <button type="button" id="closeModalBtn" class="cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <h2>Nuevo elemento</h2>
+            <form id="itemForm2">
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" required />
+
+                <div class="modal-buttons">
+                    <button type="submit">Guardar</button>
+                    <button type="button" id="closeModalBtn2" class="cancel">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="login-modal">
+        <div class="login-container">
+            <h2>Inicia sesión</h2>
+            <button id="login-btn" class="google-btn">
+                <span class="material-symbols-outlined">login</span>
+                Iniciar sesión con Google
+            </button>
+        </div>
+    </div>
 </body>
 
 </html>
