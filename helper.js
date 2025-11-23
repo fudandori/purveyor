@@ -1,5 +1,5 @@
 export function createDeleteButton() {
-const button = document.createElement('button')
+  const button = document.createElement('button')
   button.classList.add('btn', 'delete-btn')
   button.title = 'Eliminar'
 
@@ -32,18 +32,39 @@ export function generateUniqueId() {
   return `${timestamp}_${random}`
 }
 
-export function monthsUntil(date) {
-  const today = new Date()
-  const target = new Date(date)
+function monthsUntil(date) {
+  const now = new Date()
+  const expiration = new Date(date)
+  expiration.setDate(1)
+  expiration.setMonth(expiration.getMonth() + 1)
 
-  const y1 = today.getFullYear()
-  const m1 = today.getMonth()
-  const y2 = target.getFullYear()
-  const m2 = target.getMonth()
+  if (expiration < now) return -1
 
-  const diff = (y2 - y1) * 12 + (m2 - m1)
+  const y1 = now.getFullYear()
+  const m1 = now.getMonth()
+  const y2 = expiration.getFullYear()
+  const m2 = expiration.getMonth()
 
-  if (target < new Date(y1, m1, today.getDate())) return -1
+  return (y2 - y1) * 12 + (m2 - m1)
+}
 
-  return diff <= 0 ? 0 : diff
+export function highlight(date, item) {
+  const months = monthsUntil(`${date}-01`)
+
+  let color = null
+  if (months === -1) item.classList.add('expired')
+  else if (months <= 1) item.style.backgroundColor = 'orange'
+  else if (months <= 2) item.style.backgroundColor = 'yellow'
+
+  return color
+}
+
+export function expireText(input) {
+  const date = new Date(`${input}-01`)
+  const month = date.toLocaleDateString('es-ES', { month: 'long' });
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`;
+}
+
+export function byExpireDate(a, b) {
+  return a[1].expire.localeCompare(b[1].expire, 'es', { sensitivity: 'base' })
 }

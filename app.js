@@ -1,10 +1,10 @@
 import { load, save, loginWithGoogle, onUserStateChange, isLogged } from './firebase.js'
-import { monthsUntil, createDeleteButton, createEditButton, generateUniqueId } from './helper.js'
+import { highlight, expireText, createDeleteButton, createEditButton, generateUniqueId, byExpireDate } from './helper.js'
 
 const modal = document.getElementById('modal')
 const modal2 = document.getElementById('modal2')
-const openBtn = document.getElementById('openModalBtn')
-const openBtn2 = document.getElementById('openModalBtn-2')
+const newItemBtn = document.getElementById('newItemBtn')
+const newInvBtn = document.getElementById('newInvBtn')
 const closeBtn = document.getElementById('closeModalBtn')
 const closeBtn2 = document.getElementById('closeModalBtn2')
 const form = document.getElementById('itemForm')
@@ -16,12 +16,12 @@ let inventory, itemId, editing
 async function init() {
   document.getElementById('login-btn').addEventListener('click', loginWithGoogle)
 
-  openBtn.addEventListener('click', () => {
+  newItemBtn.addEventListener('click', () => {
     editing = false
     modal.style.display = 'flex'
   })
 
-  openBtn2.addEventListener('click', () => {
+  newInvBtn.addEventListener('click', () => {
     modal2.style.display = 'flex'
   })
 
@@ -57,16 +57,14 @@ async function login() {
 }
 
 function renderCluster() {
-  openBtn.style.display = 'none'
+  newItemBtn.style.display = 'none'
   const container = document.getElementById('cluster-container')
   container.innerHTML = ''
 
   Object.keys(cluster).forEach(k => {
     const div = document.createElement('div')
-
     div.id = k
     div.classList.add('inventory')
-
     div.innerHTML = cluster[k].name
     div.addEventListener('click', () => loadItems(k))
 
@@ -75,35 +73,38 @@ function renderCluster() {
 }
 
 function loadItems(id) {
-  openBtn.style.display = ''
+  newItemBtn.style.display = ''
   inventory = id
+
   const container = document.getElementById('inventory-container')
   container.innerHTML = ''
-
-  itemList()
-    .forEach(([k, v]) => {
-      const item = createItem(k, v.name, v.expire)
-      container.appendChild(item)
-    })
+  
+  const list = itemList()
+  list.forEach(([k, v]) => {
+    const item = createItem(k, v.name, v.expire)
+    container.appendChild(item)
+  })
+  
+  container.style.display = list.length ? 'flex' : ''
 }
 
 function itemList() {
   const items = cluster[inventory].items || []
-  return Object.entries(items)
-    .sort((a, b) => a[1].expire.localeCompare(b[1].expire, 'es', { sensitivity: 'base' }))
+  return Object.entries(items).sort(byExpireDate)
 }
 
 function createItem(id, name, expire) {
-  const div = document.createElement('div')
-
-  div.id = id
-  div.classList.add('item')
-
   const nameSpan = document.createElement('span')
   nameSpan.textContent = name
 
   const expireSpan = document.createElement('span')
-  expireSpan.textContent = expire
+  expireSpan.textContent = expireText(expire)
+
+  const itemText = document.createElement('div')
+  itemText.classList.add('item-text')
+
+  itemText.appendChild(nameSpan)
+  itemText.appendChild(expireSpan)
 
   const deleteBtn = createDeleteButton()
   const editBtn = createEditButton()
@@ -123,27 +124,29 @@ function createItem(id, name, expire) {
     modal.style.display = 'flex'
   })
 
-  div.appendChild(nameSpan)
-  div.appendChild(expireSpan)
-  div.appendChild(deleteBtn)
-  div.appendChild(editBtn)
+  const itemContainer = document.createElement('div')
+  itemContainer.classList.add('icon-container')
 
-  const months = monthsUntil(`${expire}-01`)
+  itemContainer.appendChild(editBtn)
+  itemContainer.appendChild(deleteBtn)
 
-  if (months === -1) div.style.backgroundColor = 'red'
-  else if (months === 0) div.style.backgroundColor = 'orange'
-  else if (months <= 2) div.style.backgroundColor = 'yellow'
+  const item = document.createElement('div')
 
-  return div
+  item.id = id
+  item.classList.add('item')
+  highlight(expire, item)
+
+  item.appendChild(itemText)
+  item.appendChild(itemContainer)
+
+  return item
 }
 
-// Función para mostrar el modal de login
 function showLoginModal() {
   const modal = document.querySelector("#login-modal")
   modal.style.display = "flex"
 }
 
-// Función para ocultar el modal
 function hideLoginModal() {
   const modal = document.querySelector("#login-modal")
   modal.style.display = "none"
@@ -198,6 +201,5 @@ function submitEventHandler2(e) {
   form2.reset()
   modal2.style.display = 'none'
 }
-
 
 init()
